@@ -7,13 +7,17 @@
  Description : Данная программа реализует арифметические операции(+(сложение),
              |-(вычитание), /(деление), *(произведение), !(факториал числа),
              |p(возведение числа в степень p))над двумя числами, введеными пользователем,
-             |(+)(сложение векторов), (-)(разность векторов), (*)(скалярное произведение
+             |s(сложение векторов), d(разность векторов), m(скалярное произведение
              |векторов)),то есть мы получаем мини-калькулятор!
  ============================================================================
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+
+
+
+
 
 int main(int argc, char *argv[]){
    setvbuf(stdout, NULL, _IONBF, 0);
@@ -25,15 +29,57 @@ int main(int argc, char *argv[]){
   Если пользователь выберет "y", то работа с калькулятором продолжится,
   иначе при выборе "n" работа с калькулятором прекратиться.
  */
-   float a,b;
-   int p;
+   float a,b,*q,*r,*rslt;
+   int p,size;
    char c,g,y;
    unsigned long int res = 1;
    do{
 	   printf("Вы хотите работать с числами или веткорами?(n/v)\n");
-	   scanf("%c",&g);
+	   scanf("\n%c",&g);
 	   if(g=='v'){
-	   		   printf("t");
+		   printf("Выберите операцию(+ - *)\n");
+		   scanf('\n%c',&c);
+		   switch(c){
+		   case '+':
+			   printf("Введите размерность векторов: ");
+			   	scanf('\n%i',&size);
+			   	q=malloc(size*sizeof(int));
+			   	r=malloc(size*sizeof(int));
+			   	rslt=malloc(size*sizeof(int));
+			   	printf("Введите значение первого вектора: ");
+			   	for(int i=0;i<size;i++)
+			   	scanf('\n%f',&q[i]);
+			   	printf("Введите значение второго вектора: ");
+			   	for(int i=0;i<size;i++)
+			   	scanf('\n%f',&r[i]);
+			   	printf("Результат сложения: ");
+			   	for(int i=0;i<size;i++)
+			   	printf("%f",q[i]+r[i]);
+			   	free(q);
+			   	free(r);
+			   	free(rslt);
+			   break;
+		   case '-':
+				printf("Введите размерность векторов: ");
+				scanf('\n%i',&size);
+				q=malloc(size*sizeof(int));
+				r=malloc(size*sizeof(int));
+				rslt=malloc(size*sizeof(int));
+				printf("Введите значение первого вектора: ");
+				for(int i=0;i<size;i++)
+				scanf('\n%f',&q[i]);
+				printf("Введите значение второго вектора: ");
+				for(int i=0;i<size;i++)
+				scanf('\n%f',&r[i]);
+				printf("Результат вычитания: ");
+				for(int i=0;i<size;i++)
+				printf("%f",q[i]-r[i]);
+				free(q);
+				free(r);
+				free(rslt);
+			   break;
+
+		   }
 	   }
 	   else{
 		   printf("Введите первое число\n");
@@ -103,3 +149,5 @@ int main(int argc, char *argv[]){
 			  }while (y=='y');
 	  return 0;
 }
+
+
