@@ -31,27 +31,27 @@ int main(int argc, char *argv[]){
  */
    float a,b,*q,*r,*rslt;
    int p,size;
-   char c,g,y;
+   char c,ci,g,y;
    unsigned long int res = 1;
    do{
 	   printf("Вы хотите работать с числами или веткорами?(n/v)\n");
-	   scanf("\n%c",&g);
+	   scanf(" %c",&g);
 	   if(g=='v'){
 		   printf("Выберите операцию(+ - *)\n");
-		   scanf('\n%c',&c);
-		   switch(c){
+		   scanf(' %c',&ci);
+		   switch(ci){
 		   case '+':
-			   printf("Введите размерность векторов: ");
-			   	scanf('\n%i',&size);
+			    printf("Введите размерность векторов: ");
+			   	scanf('%i',&size);
 			   	q=malloc(size*sizeof(int));
 			   	r=malloc(size*sizeof(int));
 			   	rslt=malloc(size*sizeof(int));
 			   	printf("Введите значение первого вектора: ");
 			   	for(int i=0;i<size;i++)
-			   	scanf('\n%f',&q[i]);
+			   	scanf('%f',&q[i]);
 			   	printf("Введите значение второго вектора: ");
 			   	for(int i=0;i<size;i++)
-			   	scanf('\n%f',&r[i]);
+			   	scanf('%f',&r[i]);
 			   	printf("Результат сложения: ");
 			   	for(int i=0;i<size;i++)
 			   	printf("%f",q[i]+r[i]);
@@ -61,16 +61,16 @@ int main(int argc, char *argv[]){
 			   break;
 		   case '-':
 				printf("Введите размерность векторов: ");
-				scanf('\n%i',&size);
+				scanf('%i',&size);
 				q=malloc(size*sizeof(int));
 				r=malloc(size*sizeof(int));
 				rslt=malloc(size*sizeof(int));
 				printf("Введите значение первого вектора: ");
 				for(int i=0;i<size;i++)
-				scanf('\n%f',&q[i]);
+				scanf('%f',&q[i]);
 				printf("Введите значение второго вектора: ");
 				for(int i=0;i<size;i++)
-				scanf('\n%f',&r[i]);
+				scanf('%f',&r[i]);
 				printf("Результат вычитания: ");
 				for(int i=0;i<size;i++)
 				printf("%f",q[i]-r[i]);
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
 		   printf("Введите первое число\n");
 		   scanf("%f",&a);
 		   printf("Выберите операцию(+ - / * ! p)\n");
-		   scanf("\n%c",&c);
+		   scanf(" %c",&c);
 		   switch(c){
 		   case '!':
 				if(a > 0){
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]){
 	       }
 	   }
 		   printf("Хотите продолжить работу с калькулятором?(y/n)\n");
-				   scanf("\n%c",&y);
+				   scanf(" %c",&y);
 			  }while (y=='y');
 	  return 0;
 }
