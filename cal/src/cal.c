@@ -7,7 +7,7 @@
  Description : Данная программа реализует арифметические операции(+(сложение),
              |-(вычитание), /(деление), *(произведение), !(факториал числа),
              |p(возведение числа в степень p))над двумя числами, введеными пользователем,
-             |s(сложение векторов), d(разность векторов), m(скалярное произведение
+             |+(сложение векторов), -(разность векторов), *(скалярное произведение
              |векторов)),то есть мы получаем мини-калькулятор!
  ============================================================================
  */
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]){
   Если пользователь выберет "y", то работа с калькулятором продолжится,
   иначе при выборе "n" работа с калькулятором прекратиться.
  */
-   float a,b,*q,*r,*rslt;
+   float a,b,*q,*r,*rslt,s;
    int p,size;
    char c,ci,g,y;
    unsigned long int res = 1;
@@ -38,47 +38,64 @@ int main(int argc, char *argv[]){
 	   scanf(" %c",&g);
 	   if(g=='v'){
 		   printf("Выберите операцию(+ - *)\n");
-		   scanf(' %c',&ci);
+		   scanf(" %c",&ci);
 		   switch(ci){
 		   case '+':
-			    printf("Введите размерность векторов: ");
-			   	scanf('%i',&size);
+			    printf("Введите размерность векторов:\n");
+			   	scanf("%i",&size);
 			   	q=malloc(size*sizeof(int));
 			   	r=malloc(size*sizeof(int));
 			   	rslt=malloc(size*sizeof(int));
-			   	printf("Введите значение первого вектора: ");
+			   	printf("Введите значение первого вектора:\n");
 			   	for(int i=0;i<size;i++)
-			   	scanf('%f',&q[i]);
-			   	printf("Введите значение второго вектора: ");
+			   	scanf("%f",&q[i]);
+			   	printf("Введите значение второго вектора:\n");
 			   	for(int i=0;i<size;i++)
-			   	scanf('%f',&r[i]);
-			   	printf("Результат сложения: ");
+			   	scanf("%f",&r[i]);
 			   	for(int i=0;i<size;i++)
-			   	printf("%f",q[i]+r[i]);
+			   	printf("%f\n",q[i]+r[i]);
 			   	free(q);
 			   	free(r);
 			   	free(rslt);
 			   break;
 		   case '-':
-				printf("Введите размерность векторов: ");
-				scanf('%i',&size);
+				printf("Введите размерность векторов:\n");
+				scanf("%i",&size);
 				q=malloc(size*sizeof(int));
 				r=malloc(size*sizeof(int));
 				rslt=malloc(size*sizeof(int));
-				printf("Введите значение первого вектора: ");
+				printf("Введите значение первого вектора:\n");
 				for(int i=0;i<size;i++)
-				scanf('%f',&q[i]);
-				printf("Введите значение второго вектора: ");
+				scanf("%f",&q[i]);
+				printf("Введите значение второго вектора:\n");
 				for(int i=0;i<size;i++)
-				scanf('%f',&r[i]);
-				printf("Результат вычитания: ");
+				scanf("%f",&r[i]);
 				for(int i=0;i<size;i++)
-				printf("%f",q[i]-r[i]);
+				printf("%f\n",q[i]-r[i]);
 				free(q);
 				free(r);
 				free(rslt);
 			   break;
-
+		   case '*':
+		   		printf("Введите размерность векторов:\n");
+		   		scanf("%i",&size);
+		   		q=malloc(size*sizeof(int));
+		   		r=malloc(size*sizeof(int));
+		   		rslt=malloc(size*sizeof(int));
+		   		printf("Введите значение первого вектора:\n");
+		   		for(int i=0;i<size;i++)
+		   		scanf("%f",&q[i]);
+		   		printf("Введите значение второго вектора:\n");
+		   		for(int i=0;i<size;i++)
+		   		scanf("%f",&r[i]);
+		   		for(int i=0;i<size;i++){
+		   			s+=q[i]*r[i];
+		   		}
+		   		printf("%f\n",s);
+		   		free(q);
+		   		free(r);
+		   		free(rslt);
+		   	break;
 		   }
 	   }
 	   else{
