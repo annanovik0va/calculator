@@ -15,6 +15,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct element{
+	float a,b,*q,*r,*rslt,s;
+	int p,size;
+	char c,ci,g,y,ys;
+	struct element *next;
+};
+
 int main(int argc, char *argv[]){
    setvbuf(stdout, NULL, _IONBF, 0);
    setvbuf(stderr, NULL, _IONBF, 0);
