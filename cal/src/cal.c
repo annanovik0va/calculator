@@ -15,59 +15,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-FILE *input, *output;
-
-struct element{
+// Структура для описания элемента списка
+typedef struct element{
 	char op, mod;
 	int size;
-	float *x, *y;
-	struct element *next;
-};
-
-struct resElement{
-	int size;
 	float *result;
+	float *x, *y;
 	unsigned long long res;
-	struct resElement *next;
-};
+	struct element *next;
+} element;
 
-typedef struct element element;
-typedef struct resElement resElement;
+// Структура для описания списка
+typedef struct list{
+	element *head;
+	element *current;
+} list;
 
-void pushElement(element** head){
-	element* tmp = (element*) malloc(sizeof(element));
-	element *last = *head;
-	fscanf(input," %c %c", &tmp->op, &tmp->mod);
-	switch (tmp->mod){
-		case 'n':
-			tmp->size = 1;
-			if (tmp->op == '!'){
-				tmp->x = malloc(sizeof(float));
-				for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->x[i]);
-	            tmp->y = NULL;
-	        }
-	        else{
-	        	tmp->x = malloc(sizeof(float));
-	            tmp->y = malloc(sizeof(float));
-	            for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->x[i]);
-	            for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->y[i]);
-	        }
-	        break;
-	    case 'v':
-	    	fscanf(input, "%i", &tmp->size);
-	    	tmp->x = malloc(tmp->size*sizeof(float));
-	        tmp->y = malloc(tmp->size*sizeof(float));
-	        for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->x[i]);
-	        for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->y[i]);
-	        break;
-	    }
+void init_list(list *l) {
+	l->head = NULL;
+	l->current = NULL;
+}
+
+void pushElement(list *l, element *data) {
+	element* tmp = malloc(sizeof(element));
+	element *last = l->head;
+	tmp->op = data->op;
+	tmp->mod = data->mod;
+	tmp->result = data->result;
+	tmp->res = data->res;
+	tmp->x = data->x;
+	tmp->y = data->y;
+	tmp->size = data->size;
 	tmp->next = NULL;
-
-	if(*head == NULL){
-		*head = tmp;
+	if(l->head == NULL){
+		l->head = tmp;
 		return;
 	}
-
 	while (last->next != NULL){
 		last = last->next;
 	}
@@ -75,77 +58,34 @@ void pushElement(element** head){
 	return;
 }
 
-void pushResult(resElement** head, char op, int size, float *result, unsigned long int res){
-	resElement* tmp = (resElement*) malloc(sizeof(resElement));
-	resElement *last = *head;
-	tmp->size = size;
-	if (op == '!' || op == '^'){
-		tmp->res = res;
-	}
-	else{
-		tmp->result = result;
-	}
-	tmp->next = NULL;
-	if(*head == NULL){
-		*head = tmp;
-		return;
-	}
-
-	while (last->next != NULL){
-		last = last->next;
-	}
-
-	last->next = tmp;
-	return;
-}
-
-void deleteElement(element **head) {
+void deleteElement(list *l) {
   element *tmp;
 
-  if(head == NULL || *head == NULL) return;
+  if(&l->head == NULL) return;
 
-  tmp = *head;
-
-  *head = (*head)->next;
-
+  tmp = l->head;
+  l->head = l->head->next;
   free(tmp);
 }
 
-void deleteResult(resElement **head){
-	resElement *tmp;
-
-	if(head == NULL || *head == NULL) return;
-
-	tmp = *head;
-
-	*head = (*head)->next;
-
-	free(tmp);
-}
-
-element* nextElement(element *current){
-	return current->next;
-}
-
-resElement* nextResult(resElement *current){
-	return current->next;
+element* nextElement(list *l){
+	l->current = l->current->next;
+	return l->current;
 }
 
 
 int main(int argc, char *argv[]){
    setvbuf(stdout, NULL, _IONBF, 0);
    setvbuf(stderr, NULL, _IONBF, 0);
+   FILE *input, *output;
    char ys;
-   element* head; // Указатель на голову списка данных
-   element* current; // Указатель на текущий элемент списка данных
-   resElement* resHead; // Указатель на голову списка результата
-   resElement* resCurrent; // Указатель на текущий элемент списка результата
+   char input_name[259],output_name[259];
+   element *tmp;
+   list l1, l2;
    do{
-	   head = NULL;
-	   current = NULL;
-	   resHead = NULL;
-	   resCurrent = NULL;
-	   char input_name[259],output_name[259];
+	   init_list(&l1);
+	   init_list(&l2);
+
 	   //Имя файла, из которого будут читаться операции в данном случае "input.txt".
    	   printf("Введите имя файла, из которого будут читаться операции.\n");
    	   scanf("%s", input_name);
@@ -153,162 +93,188 @@ int main(int argc, char *argv[]){
    	   printf("Введите имя файла, в который будут записываться результаты.\n");
    	   scanf("%s", output_name);
    	   input = fopen(input_name,"r");
+   	   tmp = malloc(sizeof(element));
    	   while (feof(input) == 0){
-   		   pushElement(&head);
+   		   	fscanf(input," %c %c", &tmp->op, &tmp->mod);
+   			switch (tmp->mod){
+   				case 'n':
+   					tmp->size = 1;
+   					if (tmp->op == '!'){
+   						tmp->x = malloc(sizeof(float));
+   						for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->x[i]);
+   			            tmp->y = NULL;
+   			        }
+   			        else{
+   			        	tmp->x = malloc(sizeof(float));
+   			            tmp->y = malloc(sizeof(float));
+   			            for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->x[i]);
+   			            for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->y[i]);
+   			        }
+   			        break;
+   			    case 'v':
+   			    	fscanf(input, "%i", &tmp->size);
+   			    	tmp->x = malloc(tmp->size*sizeof(float));
+   			        tmp->y = malloc(tmp->size*sizeof(float));
+   			        for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->x[i]);
+   			        for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->y[i]);
+   			        break;
+   			    }
+   			tmp->next = NULL;
+   		   pushElement(&l1, tmp);
    	   }
    	   fclose(input);
-   	   current = head;
-   	   while (current != NULL){
+   	   l1.current = l1.head;
+   	   while (l1.current != NULL){
+   		   tmp->x = l1.current->x;
+   		   tmp->y = l1.current->y;
+   		   tmp->size = l1.current->size;
+   		   tmp->mod = l1.current->mod;
+   		   tmp->op = l1.current->op;
    		   float *result;
    		   int p;
    		   unsigned long int res = 1;
-   		   switch (current->mod){
+   		   switch (tmp->mod){
    		   	   case 'v':
-   		   		   switch (current->op){
+   		   		   switch (tmp->op){
    						case '+':
-   							result = malloc(current->size*sizeof(float));
-   							for (int i = 0; i < current->size; i++) result[i] =  current->x[i] + current->y[i];
-   							pushResult(&resHead, current->op, current->size, result, 0);
-//   							free(result);
+   							result = malloc(tmp->size*sizeof(float));
+   							for (int i = 0; i < tmp->size; i++) result[i] = tmp->x[i] + tmp->y[i];
+   							tmp->result = result;
    							break;
    						case '-':
-   							result = malloc(current->size*sizeof(float));
-   							for (int i = 0; i < current->size; i++) result[i] =  current->x[i] - current->y[i];
-   							pushResult(&resHead, current->op, current->size, result, 0);
-//   							free(result);
+   							result = malloc(tmp->size*sizeof(float));
+   							for (int i = 0; i < tmp->size; i++) result[i] = tmp->x[i] - tmp->y[i];
+   							tmp->result = result;
    							break;
    						case '*':
    							result = malloc(sizeof(float));
    							*result = 0;
-   							for (int i = 0; i < current->size; i++) *result +=  current->x[i] * current->y[i];
-   							pushResult(&resHead, current->op, 1, result, 0);
-//   							free(result);
+   							for (int i = 0; i < tmp->size; i++) *result += tmp->x[i] * tmp->y[i];
+   							tmp->result = result;
    							break;
    					}
    					break;
    				case 'n':
-   					switch (current->op){
+   					switch (tmp->op){
    						case '+':
    							result = malloc(1*sizeof(double));
-   							*result = *current->x + *current->y;
-   							pushResult(&resHead, current->op, current->size, result, 0);
-//   							free(result);
+   							*result = *tmp->x + *tmp->y;
+   							tmp->result = result;
    							break;
    						case '-':
    							result = malloc(1*sizeof(double));
-   							*result = *current->x - *current->y;
-   							pushResult(&resHead, current->op, current->size, result, 0);
-//   							free(result);
+   							*result = *tmp->x - *tmp->y;
+   							tmp->result = result;
    							break;
    						case '*':
    							result = malloc(1*sizeof(double));
-   							*result = *current->x * *current->y;
-   							pushResult(&resHead, current->op, current->size, result, 0);
-//   							free(result);
+   							*result = *tmp->x * *tmp->y;
+   							tmp->result = result;
    							break;
    						case '/':
    							result = malloc(1*sizeof(double));
-   							*result = *current->x / *current->y;
-   							pushResult(&resHead, current->op, current->size, result, 0);
-//   							free(result);
+   							*result = *tmp->x / *tmp->y;
+   							tmp->result = result;
    							break;
    						case '!':
-   							if (*current->x > 0){
-   								for (int  i = 1; i <= *current->x; i++) {
+   							if (*tmp->x > 0) {
+   								for (int  i = 1; i <= *tmp->x; i++) {
    									res *=i;
    								}
    							}
-   							pushResult(&resHead, current->op, current->size, 0, res);
+   							tmp->res = res;
    							break;
    						case '^':
-							p = *current->x;
+							p = *tmp->x;
    							if (p < 0)	{
    								p = -p;
-   								for (int i=1; i<=p; i++) {
+   								for (int i=1; i<=*tmp->y; i++) {
    									res *= p;
    								}
    							res = (1/(*result));
    							}
    							else {
-   								for (int i=1; i<=p; i++) {
+   								for (int i=1; i<=*tmp->y; i++) {
    									res *= p;
    								}
    							}
-   							pushResult(&resHead, current->op, current->size, 0, res);
+   							tmp->res = res;
+
    							break;
    					}
    					break;
    				}
-   		   current = nextElement(current);
+   		   pushElement(&l2, tmp);
+   		   nextElement(&l1);
    	   }
-   	   current = head;
-   	   resCurrent = resHead;
+   	   free(tmp);
+   	   l1.current = l1.head;
+   	   l2.current = l2.head;
    	   if ((output = fopen(output_name, "a")) == NULL) {
    		   output = fopen(output_name, "w");
    	   }
-		while (current != NULL){
-				switch (current->mod){
+		while (l2.current != NULL){
+				switch (l2.current->mod){
 					case 'v':
 						fprintf(output, "( ");
-						for (int i = 0; i < current->size; i++){
-							if (i == current->size - 1){
-								fprintf(output, "%lf", current->x[i]);
+						for (int i = 0; i < l2.current->size; i++){
+							if (i == l2.current->size - 1){
+								fprintf(output, "%lf", l2.current->x[i]);
 							}
-							else fprintf(output, "%lf ", current->x[i]);
+							else fprintf(output, "%lf ", l2.current->x[i]);
 						}
-						fprintf(output, " ) %c ( ", current->op);
-						for (int i = 0; i < current->size; i++){
-							if (i == current->size - 1){
-								fprintf(output, "%lf", current->y[i]);
+						fprintf(output, " ) %c ( ", l2.current->op);
+						for (int i = 0; i < l2.current->size; i++){
+							if (i == l2.current->size - 1){
+								fprintf(output, "%lf", l2.current->y[i]);
 							}
-							else fprintf(output, "%lf ", current->y[i]);
+							else fprintf(output, "%lf ", l2.current->y[i]);
 						}
-						if (current->op == '+' || current->op == '-'){
+						if (l2.current->op == '+' || l2.current->op == '-'){
 							fprintf(output, " ) = ( ");
-							for (int i = 0; i < resCurrent->size; i++){
-								if (i == resCurrent->size - 1){
-									fprintf(output, "%lf", resCurrent->result[i]);
+							for (int i = 0; i < l2.current->size; i++){
+								if (i == l2.current->size - 1){
+									fprintf(output, "%lf", l2.current->result[i]);
 								}
-								else fprintf(output, "%lf ", resCurrent->result[i]);
+								else fprintf(output, "%lf ", l2.current->result[i]);
 							}
 							fprintf(output, " )\n");
 						}
 						else{
-							fprintf(output, " ) = %lf\n", *resCurrent->result);
+							fprintf(output, " ) = %lf\n", *l2.current->result);
 						}
 						break;
 					case 'n':
-						switch (current->op){
+						switch (l2.current->op){
 							case '+':
-								fprintf(output, "%lf + %lf = %lf\n", *current->x, *current->y, *resCurrent->result);
+								fprintf(output, "%lf + %lf = %lf\n", *l2.current->x, *l2.current->y, *l2.current->result);
 								break;
 							case '-':
-								fprintf(output, "%lf - %lf = %lf\n", *current->x, *current->y, *resCurrent->result);
+								fprintf(output, "%lf - %lf = %lf\n", *l2.current->x, *l2.current->y, *l2.current->result);
 								break;
 							case '*':
-								fprintf(output, "%lf * %lf = %lf\n", *current->x, *current->y, *resCurrent->result);
+								fprintf(output, "%lf * %lf = %lf\n", *l2.current->x, *l2.current->y, *l2.current->result);
 								break;
 							case '/':
-								fprintf(output, "%lf / %lf = %lf\n", *current->x, *current->y, *resCurrent->result);
+								fprintf(output, "%lf / %lf = %lf\n", *l2.current->x, *l2.current->y, *l2.current->result);
 								break;
 							case '!':
-								fprintf(output, "%lf! = %llu\n", *current->x, resCurrent->res);
+								fprintf(output, "%lf! = %llu\n", *l2.current->x, l2.current->res);
 								break;
 							case '^':
-								fprintf(output, "%lf^%lf = %llu\n", *current->x, *current->y, resCurrent->res);
+								fprintf(output, "%lf^%lf = %llu\n", *l2.current->x, *l2.current->y, l2.current->res);
 								break;
 						}
 				}
-			current = nextElement(current);
-			resCurrent = nextResult(resCurrent);
+			nextElement(&l2);
 		}
 	   fclose(output);
-	   while (head != NULL){
-	   		deleteElement(&head);
-	   	}
-	   	while (resHead != NULL){
-	   		deleteResult(&resHead);
-	   	}
+	   while (l1.head != NULL){
+		   deleteElement(&l1);
+	   }
+	   while (l2.head != NULL){
+		   deleteElement(&l2);
+	   }
 	   printf("Работа с файлом завершена!\n");
 	   printf("Хотите продолжить работу?(y/n)\n");
 	   scanf(" %c",&ys);
