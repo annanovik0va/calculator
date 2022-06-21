@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Структура для описания элемента списка
+// Структура для описания элемента очереди
 typedef struct element{
 	char op, mod;
 	int size;
@@ -25,20 +25,19 @@ typedef struct element{
 	struct element *next;
 } element;
 
-// Структура для описания списка
-typedef struct list{
+// Структура для описания очереди
+typedef struct queue{
 	element *head;
-	element *current;
-} list;
+	element *tail;
+} queue;
 
-void init_list(list *l) {
+void init_queue(queue *l) {
 	l->head = NULL;
-	l->current = NULL;
+	l->tail = NULL;
 }
 
-void pushElement(list *l, element *data) {
+void pushElement(queue *l, element *data) {
 	element* tmp = malloc(sizeof(element));
-	element *last = l->head;
 	tmp->op = data->op;
 	tmp->mod = data->mod;
 	tmp->result = data->result;
@@ -47,32 +46,44 @@ void pushElement(list *l, element *data) {
 	tmp->y = data->y;
 	tmp->size = data->size;
 	tmp->next = NULL;
-	if(l->head == NULL){
-		l->head = tmp;
-		return;
+	if (l->tail != NULL) {
+			l->tail->next = tmp;
+		}
+
+		l->tail = tmp;
+
+		if(l->head == NULL) {
+			l->head = tmp;
+		}
+}
+element* withdrawal(queue *q) {
+	element *result;
+	result = malloc(sizeof(element));
+
+	if (q->head == NULL){
+		result = NULL;
+		return result;
 	}
-	while (last->next != NULL){
-		last = last->next;
+
+	element *tmp = q->head;
+
+	result->mod = tmp->mod;
+	result->op = tmp->op;
+	result->size = tmp->size;
+	result->x = tmp->x;
+	result->y = tmp->y;
+	result->result = tmp->result;
+	result->res = tmp->res;
+
+	//take it off.
+	q->head = q->head->next;
+	if (q->head == NULL) {
+		q->tail = NULL;
 	}
-	last->next = tmp;
-	return;
+	free(tmp);
+
+	return result;
 }
-
-void deleteElement(list *l) {
-  element *tmp;
-
-  if(&l->head == NULL) return;
-
-  tmp = l->head;
-  l->head = l->head->next;
-  free(tmp);
-}
-
-element* nextElement(list *l){
-	l->current = l->current->next;
-	return l->current;
-}
-
 
 int main(int argc, char *argv[]){
    setvbuf(stdout, NULL, _IONBF, 0);
@@ -81,10 +92,10 @@ int main(int argc, char *argv[]){
    char ys;
    char input_name[259],output_name[259];
    element *tmp;
-   list l1, l2;
+   queue l1, l2;
    do{
-	   init_list(&l1);
-	   init_list(&l2);
+	   init_queue(&l1);
+	   init_queue(&l2);
 
 	   //Имя файла, из которого будут читаться операции в данном случае "input.txt".
    	   printf("Введите имя файла, из которого будут читаться операции.\n");
@@ -119,17 +130,16 @@ int main(int argc, char *argv[]){
    			        for (int i = 0; i < tmp->size; i++) fscanf(input, "%f", &tmp->y[i]);
    			        break;
    			    }
-   			tmp->next = NULL;
    		   pushElement(&l1, tmp);
    	   }
    	   fclose(input);
-   	   l1.current = l1.head;
-   	   while (l1.current != NULL){
-   		   tmp->x = l1.current->x;
-   		   tmp->y = l1.current->y;
-   		   tmp->size = l1.current->size;
-   		   tmp->mod = l1.current->mod;
-   		   tmp->op = l1.current->op;
+   	   free(tmp);
+   	   while ((tmp = withdrawal(&l1)) != NULL){
+   		   tmp->x = l1.tail->x;
+   		   tmp->y = l1.tail->y;
+   		   tmp->size = l1.tail->size;
+   		   tmp->mod = l1.tail->mod;
+   		   tmp->op = l1.tail->op;
    		   float *result;
    		   int p;
    		   unsigned long int res = 1;
@@ -205,76 +215,66 @@ int main(int argc, char *argv[]){
    					break;
    				}
    		   pushElement(&l2, tmp);
-   		   nextElement(&l1);
    	   }
    	   free(tmp);
-   	   l1.current = l1.head;
-   	   l2.current = l2.head;
    	   if ((output = fopen(output_name, "a")) == NULL) {
    		   output = fopen(output_name, "w");
    	   }
-		while (l2.current != NULL){
-				switch (l2.current->mod){
+		while ((tmp = withdrawal(&l2)) != NULL){
+				switch (tmp->mod){
 					case 'v':
 						fprintf(output, "( ");
-						for (int i = 0; i < l2.current->size; i++){
-							if (i == l2.current->size - 1){
-								fprintf(output, "%lf", l2.current->x[i]);
+						for (int i = 0; i < tmp->size; i++){
+							if (i == tmp->size - 1){
+								fprintf(output, "%lf", tmp->x[i]);
 							}
-							else fprintf(output, "%lf ", l2.current->x[i]);
+							else fprintf(output, "%lf ", tmp->x[i]);
 						}
-						fprintf(output, " ) %c ( ", l2.current->op);
-						for (int i = 0; i < l2.current->size; i++){
-							if (i == l2.current->size - 1){
-								fprintf(output, "%lf", l2.current->y[i]);
+						fprintf(output, " ) %c ( ", tmp->op);
+						for (int i = 0; i < tmp->size; i++){
+							if (i == tmp->size - 1){
+								fprintf(output, "%lf", tmp->y[i]);
 							}
-							else fprintf(output, "%lf ", l2.current->y[i]);
+							else fprintf(output, "%lf ", tmp->y[i]);
 						}
-						if (l2.current->op == '+' || l2.current->op == '-'){
+						if (tmp->op == '+' || tmp->op == '-'){
 							fprintf(output, " ) = ( ");
-							for (int i = 0; i < l2.current->size; i++){
-								if (i == l2.current->size - 1){
-									fprintf(output, "%lf", l2.current->result[i]);
+							for (int i = 0; i < tmp->size; i++){
+								if (i == tmp->size - 1){
+									fprintf(output, "%lf", tmp->result[i]);
 								}
-								else fprintf(output, "%lf ", l2.current->result[i]);
+								else fprintf(output, "%lf ", tmp->result[i]);
 							}
 							fprintf(output, " )\n");
 						}
 						else{
-							fprintf(output, " ) = %lf\n", *l2.current->result);
+							fprintf(output, " ) = %lf\n", *tmp->result);
 						}
 						break;
 					case 'n':
-						switch (l2.current->op){
+						switch (tmp->op){
 							case '+':
-								fprintf(output, "%lf + %lf = %lf\n", *l2.current->x, *l2.current->y, *l2.current->result);
+								fprintf(output, "%lf + %lf = %lf\n", *tmp->x, *tmp->y, *tmp->result);
 								break;
 							case '-':
-								fprintf(output, "%lf - %lf = %lf\n", *l2.current->x, *l2.current->y, *l2.current->result);
+								fprintf(output, "%lf - %lf = %lf\n", *tmp->x, *tmp->y, *tmp->result);
 								break;
 							case '*':
-								fprintf(output, "%lf * %lf = %lf\n", *l2.current->x, *l2.current->y, *l2.current->result);
+								fprintf(output, "%lf * %lf = %lf\n", *tmp->x, *tmp->y, *tmp->result);
 								break;
 							case '/':
-								fprintf(output, "%lf / %lf = %lf\n", *l2.current->x, *l2.current->y, *l2.current->result);
+								fprintf(output, "%lf / %lf = %lf\n", *tmp->x, *tmp->y, *tmp->result);
 								break;
 							case '!':
-								fprintf(output, "%lf! = %llu\n", *l2.current->x, l2.current->res);
+								fprintf(output, "%lf! = %llu\n", *tmp->x, tmp->res);
 								break;
 							case '^':
-								fprintf(output, "%lf^%lf = %llu\n", *l2.current->x, *l2.current->y, l2.current->res);
+								fprintf(output, "%lf^%lf = %llu\n", *tmp->x, *tmp->y, tmp->res);
 								break;
 						}
 				}
-			nextElement(&l2);
 		}
 	   fclose(output);
-	   while (l1.head != NULL){
-		   deleteElement(&l1);
-	   }
-	   while (l2.head != NULL){
-		   deleteElement(&l2);
-	   }
 	   printf("Работа с файлом завершена!\n");
 	   printf("Хотите продолжить работу?(y/n)\n");
 	   scanf(" %c",&ys);
