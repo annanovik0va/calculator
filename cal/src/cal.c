@@ -135,11 +135,6 @@ int main(int argc, char *argv[]){
    	   fclose(input);
    	   free(tmp);
    	   while ((tmp = withdrawal(&l1)) != NULL){
-   		   tmp->x = l1.tail->x;
-   		   tmp->y = l1.tail->y;
-   		   tmp->size = l1.tail->size;
-   		   tmp->mod = l1.tail->mod;
-   		   tmp->op = l1.tail->op;
    		   float *result;
    		   int p;
    		   unsigned long int res = 1;
